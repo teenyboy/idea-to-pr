@@ -1,6 +1,6 @@
 # idea-to-pr
 
-A Claude Code skill for end-to-end feature development. Transforms a feature idea into a production-ready PR with automated implementation, validation, review, and auto-fix.
+A Claude Code skill for end-to-end feature development (local/git-only). Transforms a feature idea into production-ready code with automated implementation, validation, review, and auto-fix. No GitHub/GitLab dependency.
 
 ## Workflow
 
@@ -11,7 +11,7 @@ A Claude Code skill for end-to-end feature development. Transforms a feature ide
 | 2 | **Confirm** | Verify plan research is still valid |
 | 3 | **Implement** | Task execution with type-check after every change |
 | 4 | **Validate** | Full validation suite (type → lint → format → test → build) |
-| 5 | **Finalize PR** | Commit, push, create PR |
+| 5 | **Finalize** | Commit and push to branch |
 | 6 | **Review** | 5 parallel review agents (code, errors, tests, comments, docs) |
 | 7 | **Synthesize** | Combine findings, deduplicate, prioritize |
 | 8 | **Fix** | Auto-fix all critical and high issues |
@@ -71,8 +71,8 @@ idea-to-pr/
 ## Requirements
 
 - [Claude Code](https://claude.ai/code) with skill/agent support
-- Git (for branch/PR operations)
-- GitHub CLI (`gh`) — for PR creation and review
+- Git (for branch operations)
+- **No GitHub/GitLab CLI needed**
 
 ## Setup
 
@@ -99,6 +99,7 @@ Executes tasks defined in the plan sequentially with a hard rule: **type-check a
 Runs the project's validation pipeline — type checking, linting, formatting, tests, and build — in that order, failing fast on errors.
 
 ### Review
+Review is based on `git diff $REVIEW_BASE...HEAD` (default base: `main`).
 Launches 5 specialized agents in parallel:
 1. **Code Review** — Bugs, patterns, conventions compliance
 2. **Error Handling** — Silent failures, error propagation gaps

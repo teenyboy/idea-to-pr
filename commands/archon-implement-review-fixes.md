@@ -9,7 +9,7 @@ argument-hint: (none - reads from consolidated review artifact)
 
 ## IMPORTANT: Output Behavior
 
-**Your output will be posted as a GitHub comment.** Keep your working output minimal:
+**Your output will be the final report.** Keep your working output minimal:
 - Do NOT narrate each step ("Now I'll read the file...", "Let me check...")
 - Do NOT output verbose progress updates
 - Only output the final structured report at the end
@@ -22,32 +22,17 @@ argument-hint: (none - reads from consolidated review artifact)
 Read the consolidated review artifact and implement all CRITICAL and HIGH priority fixes. Add tests for fixed code if missing. Commit and push changes. Report what was fixed, what wasn't (and why), and suggest follow-up issues for remaining items.
 
 **Output artifact**: `.claude/skills/idea-to-pr/artifacts/review/fix-report.md`
-**Git action**: Commit AND push fixes to the PR branch
-**GitHub action**: Post fix report comment
+**Git action**: Commit AND push fixes to the branch
 
 ---
 
 ## Phase 1: LOAD - Get Fix List
 
-### 1.1 Get PR Number from Registry
+### 1.1 Get Current Branch
 
 ```bash
-PR_NUMBER=$(cat .claude/skills/idea-to-pr/artifacts/.pr-number)
-
-# Get the PR's head branch name
-HEAD_BRANCH=$(gh pr view $PR_NUMBER --json headRefName --jq '.headRefName')
-echo "PR: $PR_NUMBER, Branch: $HEAD_BRANCH"
-```
-
-### 1.2 Checkout the PR Branch
-
-**CRITICAL: Work on the PR's actual branch, not a new branch.**
-
-```bash
-# Fetch and checkout the PR's branch
-git fetch origin $HEAD_BRANCH
-git checkout $HEAD_BRANCH
-git pull origin $HEAD_BRANCH
+HEAD_BRANCH=$(git branch --show-current)
+echo "Branch: $HEAD_BRANCH"
 ```
 
 ### 1.3 Read Consolidated Review
@@ -83,8 +68,7 @@ git branch --show-current
 Verify you are on the correct PR branch (should be `$HEAD_BRANCH`).
 
 **PHASE_1_CHECKPOINT:**
-- [ ] PR number identified
-- [ ] On the correct PR branch (NOT base branch, NOT a new branch)
+- [ ] On the correct branch
 - [ ] Consolidated review loaded
 - [ ] CRITICAL/HIGH issues extracted
 
@@ -325,16 +309,15 @@ Write to `.claude/skills/idea-to-pr/artifacts/review/fix-report.md`:
 
 ---
 
-## Phase 6: POST - GitHub Comment
+## Phase 6: OUTPUT - Final Report
 
-### 6.1 Post Fix Report
+Output the final report:
 
-```bash
-gh pr comment {number} --body "$(cat <<'EOF'
+```markdown
 # ⚡ Auto-Fix Report
 
 **Status**: {COMPLETE | PARTIAL}
-**Pushed**: ✅ Changes pushed to PR
+**Branch**: {HEAD_BRANCH}
 
 ---
 
@@ -364,36 +347,14 @@ gh pr comment {number} --body "$(cat <<'EOF'
 
 ---
 
-## 🟡 MEDIUM Issues (Your Decision)
-
-{If any:}
-| Issue | Options |
-|-------|---------|
-| {title} | Fix now / Create issue / Skip |
-
----
-
-## 📋 Suggested Follow-up Issues
-
-{If any items should become issues:}
-1. **{Issue Title}** (P{1/2/3}) - {brief description}
-
----
-
 ## Validation
 
 ✅ Type check | ✅ Lint | ✅ Tests | ✅ Build
 
 ---
 
-*Auto-fixed by Archon comprehensive-pr-review workflow*
 *Fixes pushed to branch `{HEAD_BRANCH}`*
-EOF
-)"
 ```
-
-**PHASE_6_CHECKPOINT:**
-- [ ] GitHub comment posted
 
 ---
 
@@ -446,9 +407,8 @@ See fix report: `.claude/skills/idea-to-pr/artifacts/review/fix-report.md`
 
 ## Success Criteria
 
-- **ON_CORRECT_BRANCH**: Working on PR's head branch, not base branch or new branch
 - **CRITICAL_ADDRESSED**: All CRITICAL issues attempted
 - **HIGH_ADDRESSED**: All HIGH issues attempted
 - **VALIDATION_PASSED**: Type check, lint, tests, build all pass
-- **COMMITTED_AND_PUSHED**: Changes committed AND pushed to PR branch
-- **REPORTED**: Fix report artifact and GitHub comment created
+- **COMMITTED_AND_PUSHED**: Changes committed AND pushed
+- **REPORTED**: Fix report artifact created

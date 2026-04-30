@@ -33,10 +33,15 @@ Note which files are source vs test files.
 
 **CRITICAL**: Check for "NOT Building (Scope Limits)" section. Items listed there are **intentionally excluded** - do NOT flag them as bugs or missing test coverage!
 
-### 1.3 Get PR Diff
+### 1.3 Get Diff
 
 ```bash
-gh pr diff {number}
+REVIEW_BASE=$(grep -E '^\*\*Base\*\*' .claude/skills/idea-to-pr/artifacts/review/scope.md | sed 's/.*\*\*Base\*\*: //' | tr -d '`')
+if git diff origin/$REVIEW_BASE...HEAD --stat &>/dev/null; then
+  git diff origin/$REVIEW_BASE...HEAD
+else
+  git diff
+fi
 ```
 
 ### 1.4 Read Existing Tests

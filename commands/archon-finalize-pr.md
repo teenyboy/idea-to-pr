@@ -1,9 +1,9 @@
 ---
-description: Commit changes, create PR with template, mark ready for review
+description: Commit changes, push to remote, report branch status
 argument-hint: (no arguments - reads from workflow artifacts)
 ---
 
-# Finalize Pull Request
+# Finalize Changes
 
 **Workflow ID**: idea-to-pr
 
@@ -11,11 +11,10 @@ argument-hint: (no arguments - reads from workflow artifacts)
 
 ## Your Mission
 
-Finalize the implementation and create the PR:
+Finalize the implementation:
 1. Commit all changes
 2. Push to remote
-3. Create PR using project's template (if exists)
-4. Mark PR as ready for review
+3. Report branch status (no PR created — this is the local version)
 
 ---
 
@@ -37,27 +36,9 @@ Extract:
 - Validation results
 - Deviations from plan (if any)
 
-### 1.2 Check for PR Template
-
-**IMPORTANT**: Always check for the project's PR template first. Look for it at `.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md`, or `docs/PULL_REQUEST_TEMPLATE.md`. Read whichever one exists.
-
-**If template found**: Use it as the structure, fill in **every section** with implementation details.
-**If no template**: Use the default format defined in Phase 3.
-
-### 1.3 Check for Existing PR
-
-```bash
-gh pr list --head $(git branch --show-current) --json number,url,state
-```
-
-**If PR already exists**: Will update it instead of creating new one.
-**If no PR**: Will create new one.
-
 **PHASE_1_CHECKPOINT:**
 
 - [ ] Artifacts loaded
-- [ ] Template identified (or using default)
-- [ ] Existing PR status known
 
 ---
 
@@ -93,8 +74,6 @@ git commit -m "{summary of implementation}
 - {key change 1}
 - {key change 2}
 - {key change 3}
-
-{If from plan/issue: Implements #{number}}
 "
 ```
 
@@ -113,145 +92,26 @@ git push origin HEAD
 
 ---
 
-## Phase 3: CREATE/UPDATE - Pull Request
+## Phase 3: ARTIFACT - Write Completion Status
 
-### 3.1 Prepare PR Body
-
-**If project has PR template**, fill in each section with implementation details:
-- Replace placeholder text with actual content
-- Fill in checkboxes based on what was done
-- Keep the template's structure intact
-
-**If no template**, use this default format:
-
-```markdown
-## Summary
-
-{Brief description from plan summary}
-
-## Changes
-
-{From implementation.md "Files Changed" section}
-
-| File | Action | Description |
-|------|--------|-------------|
-| `src/x.ts` | CREATE | {what it does} |
-| `src/y.ts` | UPDATE | {what changed} |
-
-## Tests
-
-{From implementation.md "Tests Written" section}
-
-- `src/x.test.ts` - {test descriptions}
-- `src/y.test.ts` - {test descriptions}
-
-## Validation
-
-{From validation.md}
-
-- [x] Type check passes
-- [x] Lint passes
-- [x] Format passes
-- [x] All tests pass ({N} tests)
-- [x] Build succeeds
-
-## Implementation Notes
-
-{If deviations from plan:}
-### Deviations from Plan
-
-{List deviations and reasons}
-
-{If issues encountered:}
-### Issues Resolved
-
-{List issues and resolutions}
-
----
-
-**Plan**: `{plan-source-path}`
-**Workflow ID**: `idea-to-pr`
-```
-
-### 3.2 Create or Update PR
-
-**If no PR exists**, create one:
-
-```bash
-# Write prepared body to file to avoid shell escaping
-cat > .claude/skills/idea-to-pr/artifacts/pr-body.md <<'EOF'
-{prepared-body}
-EOF
-
-gh pr create \
-  --title "{plan-title}" \
-  --body-file .claude/skills/idea-to-pr/artifacts/pr-body.md \
-  --base $BASE_BRANCH
-```
-
-**If PR already exists**, update it:
-
-```bash
-gh pr edit {pr-number} --body-file .claude/skills/idea-to-pr/artifacts/pr-body.md
-```
-
-### 3.3 Ensure Ready for Review
-
-If PR was created as draft, mark ready:
-
-```bash
-gh pr ready {pr-number} 2>/dev/null || true
-```
-
-### 3.4 Capture PR Info
-
-```bash
-gh pr view --json number,url,headRefName,baseRefName
-```
-
-### 3.5 Write PR Number Registry
-
-Write PR number for downstream review steps:
-
-```bash
-PR_NUMBER=$(gh pr view --json number -q '.number')
-PR_URL=$(gh pr view --json url -q '.url')
-echo "$PR_NUMBER" > .claude/skills/idea-to-pr/artifacts/.pr-number
-echo "$PR_URL" > .claude/skills/idea-to-pr/artifacts/.pr-url
-```
-
-**PHASE_3_CHECKPOINT:**
-
-- [ ] PR created or updated
-- [ ] PR body uses template (if available)
-- [ ] PR ready for review
-- [ ] PR URL captured
-- [ ] PR number registry written
-
----
-
-## Phase 4: ARTIFACT - Write PR Ready Status
-
-### 4.1 Write Final Artifact
+### 3.1 Write Artifact
 
 Write to `.claude/skills/idea-to-pr/artifacts/pr-ready.md`:
 
 ```markdown
-# PR Ready for Review
+# Changes Complete
 
 **Generated**: {YYYY-MM-DD HH:MM}
 **Workflow ID**: idea-to-pr
 
 ---
 
-## Pull Request
+## Branch
 
 | Field | Value |
 |-------|-------|
-| **Number** | #{number} |
-| **URL** | {url} |
-| **Branch** | `{head}` → `{base}` |
-| **Status** | Ready for Review |
+| **Branch** | `{branch-name}` |
+| **Status** | Pushed to remote |
 
 ---
 
@@ -262,9 +122,9 @@ Write to `.claude/skills/idea-to-pr/artifacts/pr-ready.md`:
 
 ---
 
-## Files in PR
+## Files Changed
 
-{From git diff --name-only origin/$BASE_BRANCH}
+{From git diff --name-only origin/main}
 
 | File | Status |
 |------|--------|
@@ -273,46 +133,33 @@ Write to `.claude/skills/idea-to-pr/artifacts/pr-ready.md`:
 
 ---
 
-## PR Description
-
-{Whether template was used or default format}
-
-- Template used: {yes/no}
-- Template path: {path if used}
-
----
-
 ## Next Step
 
-Continue to PR review workflow:
-1. `archon-pr-review-scope`
-2. `archon-sync-pr-with-main`
-3. Review agents (parallel)
-4. `archon-synthesize-review`
-5. `archon-implement-review-fixes`
+Continue to code review:
+1. Review agents (parallel)
+2. `archon-synthesize-review`
+3. `archon-implement-review-fixes`
 ```
 
-**PHASE_4_CHECKPOINT:**
+**PHASE_3_CHECKPOINT:**
 
-- [ ] PR ready artifact written
+- [ ] Completion artifact written
 
 ---
 
-## Phase 5: OUTPUT - Report Status
+## Phase 4: OUTPUT - Report Status
 
 ```markdown
-## PR Ready for Review ✅
+## Changes Complete
 
 **Workflow ID**: `idea-to-pr`
 
-### Pull Request
+### Branch
 
 | Field | Value |
 |-------|-------|
-| PR | #{number} |
-| URL | {url} |
-| Branch | `{branch}` → `{base}` |
-| Status | 🟢 Ready for Review |
+| Branch | `{branch}` |
+| Status | Pushed to remote |
 
 ### Commit
 
@@ -335,13 +182,9 @@ Continue to PR review workflow:
 | Tests | ✅ ({N} passed) |
 | Build | ✅ |
 
-### Artifact
-
-Status written to: `.claude/skills/idea-to-pr/artifacts/pr-ready.md`
-
 ### Next Step
 
-Proceeding to comprehensive PR review.
+Proceeding to code review.
 ```
 
 ---
@@ -355,7 +198,7 @@ If no changes to commit:
 ```markdown
 ℹ️ No changes to commit
 
-All changes were already committed. Proceeding to update PR description.
+All changes were already committed.
 ```
 
 ### Push Fails
@@ -375,28 +218,10 @@ Check:
 3. Remote branch status: `git fetch origin && git status`
 ```
 
-### PR Not Found
-
-```
-❌ PR not found: #{number}
-
-The draft PR may have been closed or deleted. Create a new one:
-`gh pr create --title "..." --body "..."`
-```
-
-### Template Parsing
-
-If template has complex structure that's hard to fill:
-- Use as much of the template as possible
-- Add implementation details in relevant sections
-- Note at bottom: "Some template sections may need manual completion"
-
 ---
 
 ## Success Criteria
 
 - **CHANGES_COMMITTED**: All changes in a commit
 - **PUSHED**: Branch pushed to remote
-- **PR_UPDATED**: PR description reflects implementation
-- **PR_READY**: Draft status removed
-- **ARTIFACT_WRITTEN**: PR ready artifact created
+- **ARTIFACT_WRITTEN**: Completion artifact created

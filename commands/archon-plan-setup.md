@@ -53,7 +53,7 @@ Read the plan file:
 cat $PLAN_PATH
 ```
 
-If `$ARGUMENTS` is a GitHub issue URL or number (e.g., `#123`), fetch the issue body instead.
+If `$ARGUMENTS` is an issue URL or number (e.g., `#123`), fetch the issue body instead (requires issue tracker CLI).
 
 ### 1.3 Extract Key Information
 
@@ -104,10 +104,10 @@ git remote get-url origin
 
 ### 2.2 Determine Repository Info
 
-Extract owner/repo from the remote URL for PR creation:
+Get remote info:
 
 ```bash
-gh repo view --json nameWithOwner -q .nameWithOwner
+git remote get-url origin 2>/dev/null || echo "local (no remote)"
 ```
 
 ### 2.3 Branch Decision

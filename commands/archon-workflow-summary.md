@@ -16,8 +16,7 @@ Create the final summary report for the workflow run:
 2. List deviations and their rationale
 3. Surface unfixed review findings (MEDIUM/LOW)
 4. Create actionable follow-up recommendations
-5. Post to GitHub PR as a comment
-6. Write artifact for future reference
+5. Write artifact for future reference
 
 **Output**: Decision matrix the user can act on quickly.
 
@@ -45,9 +44,7 @@ done
 - `plan-confirmation.md` - Pattern verification results
 - `implementation.md` - Tasks done, deviations, issues encountered
 - `validation.md` - Test/lint/build results
-- `pr-ready.md` - PR number, URL, final commit
-- `.pr-number` - PR number registry file
-- `.pr-url` - PR URL registry file
+- `pr-ready.md` - Completion status, final commit
 
 ### 1.2 Scan Review Artifacts
 
@@ -122,7 +119,7 @@ Compare across artifacts:
 
 | Item | Rationale | Suggested Follow-Up |
 |------|-----------|---------------------|
-| {excluded item} | {why excluded} | Create issue / Separate PR / Not needed |
+| {excluded item} | {why excluded} | Create issue / Future PR / Not needed |
 
 **From Implementation Deviations** - Changes that diverged from plan:
 
@@ -187,7 +184,7 @@ Structure the output for easy decision-making:
 
 ---
 
-### 📋 Suggested GitHub Issues
+### 📋 Suggested Issues
 
 | # | Title | Labels | From |
 |---|-------|--------|------|
@@ -233,17 +230,15 @@ Structure the output for easy decision-making:
 
 ---
 
-## Phase 4: POST - GitHub PR Comment
+## Phase 4: OUTPUT - Workflow Summary
 
-### 4.1 Format for GitHub
-
-Create a PR comment with the summary:
+Output the final summary:
 
 ```markdown
 ## 🎯 Workflow Summary
 
 **Plan**: `{plan-path}`
-**Status**: ✅ Implementation complete, PR ready for review
+**Status**: ✅ Implementation complete
 
 ---
 
@@ -285,8 +280,6 @@ Create a PR comment with the summary:
 |------|--------|--------|
 | {item} | ~2 min | {action} |
 
-**Reply with**: `@archon do quick wins` to auto-fix these.
-
 ---
 
 ### 📋 Suggested Follow-Up Issues
@@ -297,8 +290,6 @@ Create a PR comment with the summary:
 |-------|--------|
 | {title} | {labels} |
 
-**Reply with**: `@archon create follow-up issues` to create these.
-
 ---
 
 ### 📝 Documentation Updates
@@ -308,8 +299,6 @@ Create a PR comment with the summary:
 | File | Update |
 |------|--------|
 | {file} | {what} |
-
-**Reply with**: `@archon update docs` to send a docs agent.
 
 ---
 
@@ -327,16 +316,9 @@ These were **intentionally excluded** from scope:
 **Artifacts**: `.claude/skills/idea-to-pr/artifacts/`
 ```
 
-### 4.2 Post to GitHub
-
-```bash
-gh pr comment {pr-number} --body "{formatted-summary}"
-```
-
 **PHASE_4_CHECKPOINT:**
 
-- [ ] Summary formatted for GitHub
-- [ ] Comment posted to PR
+- [ ] Summary complete
 
 ---
 
@@ -351,7 +333,7 @@ Write to `.claude/skills/idea-to-pr/artifacts/workflow-summary.md`:
 
 **Generated**: {YYYY-MM-DD HH:MM}
 **Workflow ID**: idea-to-pr
-**PR**: #{number}
+**Branch**: `{branch}`
 
 ---
 
@@ -363,7 +345,7 @@ Write to `.claude/skills/idea-to-pr/artifacts/workflow-summary.md`:
 | Confirm | ✅ | Plan validated |
 | Implement | ✅ | {N} tasks completed |
 | Validate | ✅ | All checks pass |
-| PR | ✅ | #{number} created |
+| Finalize | ✅ | Changes committed |
 | Review | ✅ | {N} agents ran |
 | Fixes | ✅ | {N} issues fixed |
 
@@ -395,7 +377,7 @@ Write to `.claude/skills/idea-to-pr/artifacts/workflow-summary.md`:
 
 ## Follow-Up Recommendations
 
-### GitHub Issues to Create
+### Issues to Create
 
 {List with draft titles/bodies}
 
@@ -415,9 +397,9 @@ Write to `.claude/skills/idea-to-pr/artifacts/workflow-summary.md`:
 
 ---
 
-## GitHub Comment
+## Summary
 
-Posted to: {PR URL}#comment-{id}
+Status written to workflow artifacts.
 ```
 
 **PHASE_5_CHECKPOINT:**
@@ -427,25 +409,13 @@ Posted to: {PR URL}#comment-{id}
 
 ---
 
-## Phase 5.5: ARCHIVE - Create Backward-Compatible Symlink
+## Phase 5.5: ARCHIVE (Optional)
 
-### 5.5.1 Create Symlink for PR-Based Lookup
-
-Create symlink for backward compatibility with PR-based artifact lookup:
-
-```bash
-PR_NUMBER=$(cat .claude/skills/idea-to-pr/artifacts/.pr-number 2>/dev/null)
-if [ -n "$PR_NUMBER" ]; then
-  mkdir -p .claude/skills/idea-to-pr/artifacts/../reviews
-  ln -sfn ../runs/idea-to-pr/review .claude/skills/idea-to-pr/artifacts/../reviews/pr-$PR_NUMBER
-fi
-```
-
-This allows legacy tools to find review artifacts at `.claude/skills/idea-to-pr/artifacts/../reviews/pr-{number}/`.
+Review artifacts are available at `.claude/skills/idea-to-pr/artifacts/review/`.
 
 **PHASE_5.5_CHECKPOINT:**
 
-- [ ] Symlink created (if PR number available)
+- [ ] Artifacts accessible
 
 ---
 
@@ -455,7 +425,7 @@ This allows legacy tools to find review artifacts at `.claude/skills/idea-to-pr/
 ## Workflow Complete 🎉
 
 **Workflow ID**: `idea-to-pr`
-**PR**: #{number} - {title}
+**Branch**: `{branch}`
 
 ### Summary
 
@@ -466,19 +436,18 @@ This allows legacy tools to find review artifacts at `.claude/skills/idea-to-pr/
 | Quick wins available | {N} |
 | Follow-up issues suggested | {N} |
 
-### Posted to GitHub
+### Summary Complete
 
-Summary comment added to PR with:
+Summary includes:
 - Implementation vs plan comparison
 - Deviations documented
 - Decision matrix for follow-ups
 
 ### Your Next Steps
 
-1. **Review the PR**: {url}
-2. **Quick wins**: Reply `@archon do quick wins` on PR (or skip)
-3. **Create issues**: Reply `@archon create follow-up issues` (or skip)
-4. **Merge when ready**
+1. **Review the diff**: `git diff origin/main...HEAD`
+2. **Quick wins**: Address remaining MEDIUM/LOW items
+3. **Merge when ready**
 
 ### Artifacts
 
@@ -492,6 +461,6 @@ Summary comment added to PR with:
 
 - **ARTIFACTS_LOADED**: All workflow artifacts read
 - **MATRIX_CREATED**: Follow-up items categorized and prioritized
-- **GITHUB_POSTED**: Summary comment on PR
+- **SUMMARY_COMPLETE**: Summary written to artifacts
 - **ARTIFACT_WRITTEN**: workflow-summary.md created
 - **ACTIONABLE**: User has clear next steps with minimal cognitive load

@@ -1,10 +1,11 @@
 ---
 name: idea-to-pr
 description: |
-  Full end-to-end feature development workflow. Transforms a feature idea into a
-  production-ready PR with comprehensive review and auto-fix.
+  End-to-end feature development workflow (local/git-only). Transforms a feature
+  idea into production-ready code with automated implementation, validation, review,
+  and auto-fix. Uses local git workflow — no GitHub/GitLab dependency.
 
-  Use when: You have a feature idea or description and want end-to-end development.
+  Use when: You have a feature idea and want end-to-end development without a PR platform.
   Input: Feature description in natural language, or path to a PRD file.
 
   Full workflow:
@@ -13,29 +14,33 @@ description: |
   3. CONFIRM — Verify plan research is still valid
   4. IMPLEMENT — Tasks with type-check-after-every-change
   5. VALIDATE — Full validation suite (type → lint → format → test → build)
-  6. FINALIZE PR — Commit, push, create PR
+  6. FINALIZE — Commit and push changes to branch
   7. REVIEW — 5 parallel review agents (code, errors, tests, comments, docs)
   8. SYNTHESIZE — Combine findings, prioritize
   9. FIX — Auto-fix all CRITICAL/HIGH issues
   10. SUMMARY — Final report with decision matrix
 
   NOT for: Quick fixes, standalone reviews, existing plans (use plan-to-pr).
+  For GitHub workflow: use idea-to-pr-github instead.
 argument-hint: "[plan <description> | implement | review | continue]"
 ---
 
-# idea-to-pr
+# idea-to-pr (local)
 
 **Source**: Archon workflow `archon-idea-to-pr`
 **Workflow**: `workflow.yaml`
 **Commands**: `commands/` (16 commands)
 **Agents**: `agents/` (5 agents)
 
+**Git-only mode**: This skill uses local git commands only. No GitHub/GitLab CLI needed.
+Review is based on `git diff main...HEAD`.
+
 ## How to Use
 
 - `/idea-to-pr plan <description>` — Start from scratch: create a plan for a feature idea
 - `/idea-to-pr implement` — If plan already exists, start implementing
 - `/idea-to-pr validate` — Run validation suite
-- `/idea-to-pr review` — Run PR review (if PR exists)
+- `/idea-to-pr review` — Run review (based on local diff)
 - `/idea-to-pr` — Show full workflow menu
 
 ## Setup
@@ -46,6 +51,11 @@ Set artifacts directory:
 export SKILL_DIR=".claude/skills/idea-to-pr"
 export ARTIFACTS_DIR="$SKILL_DIR/artifacts"
 mkdir -p "$ARTIFACTS_DIR"
+```
+
+Review diff base (default: `main`):
+```bash
+export REVIEW_BASE="main"
 ```
 
 ---
@@ -111,7 +121,7 @@ Read `commands/archon-validate.md` and follow its instructions.
 
 Read `commands/archon-finalize-pr.md` and follow its instructions.
 
-**Output**: PR created, `$ARTIFACTS_DIR/.pr-number` written
+**Output**: Changes committed and pushed
 
 **Next**: `/idea-to-pr review` (or just run `/idea-to-pr` to continue)
 

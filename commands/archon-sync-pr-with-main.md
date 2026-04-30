@@ -3,13 +3,13 @@ description: Sync PR branch with latest main (rebase if needed, resolve conflict
 argument-hint: (none - uses PR from scope)
 ---
 
-# Sync PR with Main
+# Sync with Base Branch
 
 ---
 
 ## Your Mission
 
-Ensure the PR branch is up-to-date with the latest main branch before review. Rebase if needed, resolve conflicts if any arise. This step is silent when no action is needed.
+Ensure the current branch is up-to-date with the base branch before review. Rebase if needed, resolve conflicts if any arise. This step is silent when no action is needed.
 
 **Output artifact**: `.claude/skills/idea-to-pr/artifacts/review/sync-report.md` (only if rebase/conflicts occurred)
 
@@ -17,38 +17,32 @@ Ensure the PR branch is up-to-date with the latest main branch before review. Re
 
 ## Phase 1: CHECK - Determine if Sync Needed
 
-### 1.1 Get PR Number from Registry
+### 1.1 Get Branches from Scope
 
 ```bash
-PR_NUMBER=$(cat .claude/skills/idea-to-pr/artifacts/.pr-number)
+REVIEW_BASE=$(grep -E '^\*\*Base\*\*' .claude/skills/idea-to-pr/artifacts/review/scope.md | sed 's/.*\*\*Base\*\*: //' | tr -d '`' | xargs)
+REVIEW_HEAD=$(git branch --show-current)
+echo "Base: $REVIEW_BASE, Head: $REVIEW_HEAD"
 ```
-
-### 1.2 Read Scope
-
-```bash
-cat .claude/skills/idea-to-pr/artifacts/review/scope.md
-```
-
-Get branch names: `PR_HEAD` and `PR_BASE`.
 
 ### 1.3 Fetch and Checkout PR Branch
 
 ```bash
-git fetch origin $PR_BASE
-git fetch origin $PR_HEAD
+git fetch origin $REVIEW_BASE
+git fetch origin $REVIEW_HEAD
 ```
 
-Confirm you are on the PR's branch (`$PR_HEAD`). If not, checkout it:
+Confirm you are on the PR's branch (`$REVIEW_HEAD`). If not, checkout it:
 
 ```bash
-git checkout $PR_HEAD
+git checkout $REVIEW_HEAD
 ```
 
 ### 1.4 Check if Behind
 
 ```bash
 # Count commits PR branch is behind main
-BEHIND=$(git rev-list --count HEAD..origin/$PR_BASE)
+BEHIND=$(git rev-list --count HEAD..origin/$REVIEW_BASE)
 echo "Behind by: $BEHIND commits"
 ```
 
@@ -77,7 +71,7 @@ Branch is up to date with `{base}`. No sync needed.
 ### 2.1 Attempt Rebase
 
 ```bash
-git rebase origin/$PR_BASE
+git rebase origin/$REVIEW_BASE
 ```
 
 **Possible outcomes:**
@@ -211,10 +205,10 @@ bun run lint
 
 ### 5.1 Confirm Branch and Push
 
-Confirm you're on `$PR_HEAD`, then push:
+Confirm you're on `$REVIEW_HEAD`, then push:
 
 ```bash
-git push --force-with-lease origin $PR_HEAD
+git push --force-with-lease origin $REVIEW_HEAD
 ```
 
 **Note**: `--force-with-lease` is safer - fails if someone else pushed.
@@ -222,7 +216,7 @@ git push --force-with-lease origin $PR_HEAD
 ### 5.2 Verify Push
 
 ```bash
-git log origin/$PR_HEAD --oneline -3
+git log origin/$REVIEW_HEAD --oneline -3
 ```
 
 Confirm local and remote match.

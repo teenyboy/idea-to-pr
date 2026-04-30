@@ -36,10 +36,19 @@ Note:
 
 **CRITICAL**: Check for "NOT Building (Scope Limits)" section. Items listed there are **intentionally excluded** - do NOT flag them as bugs or missing features!
 
-### 1.3 Get PR Diff
+### 1.3 Get Diff
+
+Get diff from scope context. Use git diff against base branch:
 
 ```bash
-gh pr diff {number}
+# From scope manifest scope.md — extract base branch
+REVIEW_BASE=$(grep -E '^\*\*Base\*\*' .claude/skills/idea-to-pr/artifacts/review/scope.md | sed 's/.*\*\*Base\*\*: //' | tr -d '`')
+
+if git diff origin/$REVIEW_BASE...HEAD --stat &>/dev/null; then
+  git diff origin/$REVIEW_BASE...HEAD
+else
+  git diff
+fi
 ```
 
 ### 1.4 Read CLAUDE.md

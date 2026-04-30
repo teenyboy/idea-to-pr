@@ -1,5 +1,5 @@
 ---
-description: Synthesize all review agent findings into consolidated report and post to GitHub
+description: Synthesize all review agent findings into consolidated report
 argument-hint: (none - reads from review artifacts)
 ---
 
@@ -9,22 +9,15 @@ argument-hint: (none - reads from review artifacts)
 
 ## Your Mission
 
-Read all parallel review agent artifacts, synthesize findings into a consolidated report, create a master artifact, and post a comprehensive review comment to the GitHub PR.
+Read all parallel review agent artifacts, synthesize findings into a consolidated report, and write the final artifact.
 
 **Output artifact**: `.claude/skills/idea-to-pr/artifacts/review/consolidated-review.md`
-**GitHub action**: Post PR comment with full review
 
 ---
 
 ## Phase 1: LOAD - Gather All Findings
 
-### 1.1 Get PR Number from Registry
-
-```bash
-PR_NUMBER=$(cat .claude/skills/idea-to-pr/artifacts/.pr-number)
-```
-
-### 1.2 Read Scope
+### 1.1 Read Scope
 
 ```bash
 cat .claude/skills/idea-to-pr/artifacts/review/scope.md
@@ -256,17 +249,13 @@ If not addressing in this PR, create issues for:
 
 ---
 
-## Phase 4: POST - GitHub PR Comment
+## Phase 4: OUTPUT - Review Summary
 
-### 4.1 Format for GitHub
+Output the review summary. This will be visible in the terminal:
 
-Create a GitHub-friendly version of the review:
+```markdown
+# 🔍 Comprehensive Review
 
-```bash
-gh pr comment {number} --body "$(cat <<'EOF'
-# 🔍 Comprehensive PR Review
-
-**PR**: #{number}
 **Reviewed by**: 5 specialized agents
 **Date**: {date}
 
@@ -296,15 +285,6 @@ gh pr comment {number} --body "$(cat <<'EOF'
 
 {Brief description}
 
-<details>
-<summary>View fix</summary>
-
-```typescript
-{fix code}
-```
-
-</details>
-
 ---
 
 ## 🟠 High Issues (Auto-fixing)
@@ -324,37 +304,19 @@ gh pr comment {number} --body "$(cat <<'EOF'
 
 **Options**: Fix now | Create issue | Skip
 
-<details>
-<summary>View details</summary>
-
-{full details and options table}
-
-</details>
-
 ---
 
 ## 🟢 Low Issues
 
-<details>
-<summary>View {n} low-priority suggestions</summary>
-
 | Issue | Location | Suggestion |
 |-------|----------|------------|
 | {title} | `file:line` | {suggestion} |
-
-</details>
 
 ---
 
 ## ✅ What's Good
 
 {Positive observations}
-
----
-
-## 📋 Suggested Follow-up Issues
-
-{If any MEDIUM/LOW issues should become issues}
 
 ---
 
@@ -366,15 +328,11 @@ gh pr comment {number} --body "$(cat <<'EOF'
 
 ---
 
-*Reviewed by Archon comprehensive-pr-review workflow*
 *Artifacts: `.claude/skills/idea-to-pr/artifacts/review/`*
-EOF
-)"
 ```
 
 **PHASE_4_CHECKPOINT:**
-- [ ] GitHub comment posted
-- [ ] Formatting renders correctly
+- [ ] Review summary complete
 - [ ] All severity levels included
 
 ---
@@ -394,4 +352,3 @@ Output only a brief confirmation (this will be posted as a comment):
 - **ALL_ARTIFACTS_READ**: All 5 agent findings loaded
 - **FINDINGS_SYNTHESIZED**: Combined, deduplicated, prioritized
 - **CONSOLIDATED_CREATED**: Master artifact written
-- **GITHUB_POSTED**: PR comment visible
