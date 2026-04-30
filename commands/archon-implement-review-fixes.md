@@ -9,7 +9,7 @@ argument-hint: (none - reads from consolidated review artifact)
 
 ## IMPORTANT: Output Behavior
 
-**Your output will be posted as a GitHub comment.** Keep your working output minimal:
+**Your output will be posted as a PR comment.** Keep your working output minimal:
 - Do NOT narrate each step ("Now I'll read the file...", "Let me check...")
 - Do NOT output verbose progress updates
 - Only output the final structured report at the end
@@ -23,7 +23,7 @@ Read the consolidated review artifact and implement all CRITICAL and HIGH priori
 
 **Output artifact**: `.claude/skills/idea-to-pr/artifacts/review/fix-report.md`
 **Git action**: Commit AND push fixes to the PR branch
-**GitHub action**: Post fix report comment
+**Platform action**: Post fix report comment
 
 ---
 
@@ -35,7 +35,7 @@ Read the consolidated review artifact and implement all CRITICAL and HIGH priori
 PR_NUMBER=$(cat .claude/skills/idea-to-pr/artifacts/.pr-number)
 
 # Get the PR's head branch name
-HEAD_BRANCH=$(gh pr view $PR_NUMBER --json headRefName --jq '.headRefName')
+HEAD_BRANCH=$(.claude/skills/idea-to-pr/git-platform/api.sh pr view $PR_NUMBER --json headRefName --jq '.headRefName')
 echo "PR: $PR_NUMBER, Branch: $HEAD_BRANCH"
 ```
 
@@ -325,12 +325,12 @@ Write to `.claude/skills/idea-to-pr/artifacts/review/fix-report.md`:
 
 ---
 
-## Phase 6: POST - GitHub Comment
+## Phase 6: POST - PR Comment
 
 ### 6.1 Post Fix Report
 
 ```bash
-gh pr comment {number} --body "$(cat <<'EOF'
+.claude/skills/idea-to-pr/git-platform/api.sh pr comment {number} --body "$(cat <<'EOF'
 # ⚡ Auto-Fix Report
 
 **Status**: {COMPLETE | PARTIAL}
@@ -393,7 +393,7 @@ EOF
 ```
 
 **PHASE_6_CHECKPOINT:**
-- [ ] GitHub comment posted
+- [ ] PR comment posted
 
 ---
 
@@ -451,4 +451,4 @@ See fix report: `.claude/skills/idea-to-pr/artifacts/review/fix-report.md`
 - **HIGH_ADDRESSED**: All HIGH issues attempted
 - **VALIDATION_PASSED**: Type check, lint, tests, build all pass
 - **COMMITTED_AND_PUSHED**: Changes committed AND pushed to PR branch
-- **REPORTED**: Fix report artifact and GitHub comment created
+- **REPORTED**: Fix report artifact and PR comment created

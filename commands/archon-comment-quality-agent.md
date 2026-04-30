@@ -34,7 +34,7 @@ cat .claude/skills/idea-to-pr/artifacts/review/scope.md
 ### 1.3 Get PR Diff
 
 ```bash
-gh pr diff {number}
+.claude/skills/idea-to-pr/git-platform/api.sh pr diff {number}
 ```
 
 Focus on:
