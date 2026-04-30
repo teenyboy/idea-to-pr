@@ -36,7 +36,7 @@ Note which files are source vs test files.
 ### 1.3 Get PR Diff
 
 ```bash
-.claude/skills/idea-to-pr/git-platform/api.sh pr diff {number}
+gh pr diff {number}
 ```
 
 ### 1.4 Read Existing Tests

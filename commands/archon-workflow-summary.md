@@ -16,7 +16,7 @@ Create the final summary report for the workflow run:
 2. List deviations and their rationale
 3. Surface unfixed review findings (MEDIUM/LOW)
 4. Create actionable follow-up recommendations
-5. Post to PR as a comment
+5. Post to GitHub PR as a comment
 6. Write artifact for future reference
 
 **Output**: Decision matrix the user can act on quickly.
@@ -187,7 +187,7 @@ Structure the output for easy decision-making:
 
 ---
 
-### 📋 Suggested Issues
+### 📋 Suggested GitHub Issues
 
 | # | Title | Labels | From |
 |---|-------|--------|------|
@@ -233,9 +233,9 @@ Structure the output for easy decision-making:
 
 ---
 
-## Phase 4: POST - PR Comment
+## Phase 4: POST - GitHub PR Comment
 
-### 4.1 Format for PR
+### 4.1 Format for GitHub
 
 Create a PR comment with the summary:
 
@@ -327,15 +327,15 @@ These were **intentionally excluded** from scope:
 **Artifacts**: `.claude/skills/idea-to-pr/artifacts/`
 ```
 
-### 4.2 Post to PR
+### 4.2 Post to GitHub
 
 ```bash
-.claude/skills/idea-to-pr/git-platform/api.sh pr comment {pr-number} --body "{formatted-summary}"
+gh pr comment {pr-number} --body "{formatted-summary}"
 ```
 
 **PHASE_4_CHECKPOINT:**
 
-- [ ] Summary formatted for PR
+- [ ] Summary formatted for GitHub
 - [ ] Comment posted to PR
 
 ---
@@ -395,7 +395,7 @@ Write to `.claude/skills/idea-to-pr/artifacts/workflow-summary.md`:
 
 ## Follow-Up Recommendations
 
-### Issues to Create
+### GitHub Issues to Create
 
 {List with draft titles/bodies}
 
@@ -415,7 +415,7 @@ Write to `.claude/skills/idea-to-pr/artifacts/workflow-summary.md`:
 
 ---
 
-## PR Comment
+## GitHub Comment
 
 Posted to: {PR URL}#comment-{id}
 ```
@@ -466,7 +466,7 @@ This allows legacy tools to find review artifacts at `.claude/skills/idea-to-pr/
 | Quick wins available | {N} |
 | Follow-up issues suggested | {N} |
 
-### Posted to PR
+### Posted to GitHub
 
 Summary comment added to PR with:
 - Implementation vs plan comparison

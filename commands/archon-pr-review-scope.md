@@ -34,7 +34,7 @@ fi
 
 # From current branch
 if [ -z "$PR_NUMBER" ]; then
-  PR_NUMBER=$(.claude/skills/idea-to-pr/git-platform/api.sh pr view --json number -q '.number' 2>/dev/null)
+  PR_NUMBER=$(gh pr view --json number -q '.number' 2>/dev/null)
 fi
 
 if [ -z "$PR_NUMBER" ]; then
@@ -49,7 +49,7 @@ echo "$PR_NUMBER" > .claude/skills/idea-to-pr/artifacts/.pr-number
 ### 1.2 Fetch PR Details
 
 ```bash
-.claude/skills/idea-to-pr/git-platform/api.sh pr view {number} --json number,title,body,url,headRefName,baseRefName,files,additions,deletions,changedFiles,state,author,isDraft,mergeable,mergeStateStatus
+gh pr view {number} --json number,title,body,url,headRefName,baseRefName,files,additions,deletions,changedFiles,state,author,isDraft,mergeable,mergeStateStatus
 ```
 
 **Extract:**
@@ -74,14 +74,14 @@ echo "$PR_NUMBER" > .claude/skills/idea-to-pr/artifacts/.pr-number
 ### 2.1 Check for Merge Conflicts
 
 ```bash
-.claude/skills/idea-to-pr/git-platform/api.sh pr view {number} --json mergeable,mergeStateStatus --jq '.mergeable, .mergeStateStatus'
+gh pr view {number} --json mergeable,mergeStateStatus --jq '.mergeable, .mergeStateStatus'
 ```
 
 | Status | Action |
 |--------|--------|
 | `MERGEABLE` | Continue |
 | `CONFLICTING` | **STOP** - Tell user to resolve conflicts first |
-| `UNKNOWN` | Warn, continue (platform still calculating) |
+| `UNKNOWN` | Warn, continue (GitHub still calculating) |
 
 **If conflicts exist:**
 ```markdown
@@ -102,7 +102,7 @@ Then re-request the review.
 ### 2.2 Check CI Status
 
 ```bash
-.claude/skills/idea-to-pr/git-platform/api.sh pr checks {number} --json name,state,conclusion --jq '.[] | "\(.name): \(.state) (\(.conclusion // "pending"))"'
+gh pr checks {number} --json name,state,conclusion --jq '.[] | "\(.name): \(.state) (\(.conclusion // "pending"))"'
 ```
 
 | Status | Action |
@@ -118,8 +118,8 @@ Then re-request the review.
 
 ```bash
 # Get branch names
-PR_BASE=$(.claude/skills/idea-to-pr/git-platform/api.sh pr view {number} --json baseRefName --jq '.baseRefName')
-PR_HEAD=$(.claude/skills/idea-to-pr/git-platform/api.sh pr view {number} --json headRefName --jq '.headRefName')
+PR_BASE=$(gh pr view {number} --json baseRefName --jq '.baseRefName')
+PR_HEAD=$(gh pr view {number} --json headRefName --jq '.headRefName')
 
 # Fetch and count
 git fetch origin $PR_BASE --quiet
@@ -150,7 +150,7 @@ git push --force-with-lease
 ### 2.4 Check Draft Status
 
 ```bash
-.claude/skills/idea-to-pr/git-platform/api.sh pr view {number} --json isDraft --jq '.isDraft'
+gh pr view {number} --json isDraft --jq '.isDraft'
 ```
 
 | Status | Action |
@@ -200,7 +200,7 @@ Large PRs are harder to review thoroughly. Consider splitting into smaller PRs f
 ### 3.1 Get Full Diff
 
 ```bash
-.claude/skills/idea-to-pr/git-platform/api.sh pr diff {number}
+gh pr diff {number}
 ```
 
 Store this for reference - parallel agents will re-fetch as needed.
@@ -208,7 +208,7 @@ Store this for reference - parallel agents will re-fetch as needed.
 ### 3.2 List Changed Files by Type
 
 ```bash
-.claude/skills/idea-to-pr/git-platform/api.sh pr view {number} --json files --jq '.files[].path'
+gh pr view {number} --json files --jq '.files[].path'
 ```
 
 **Categorize files:**
@@ -238,7 +238,7 @@ For each new abstraction found, note it in the scope manifest under "Review Focu
 
 ```bash
 # Quick scan for new abstractions in diff
-.claude/skills/idea-to-pr/git-platform/api.sh pr diff {number} | grep "^+" | sed 's/^+//' | grep -E "(^interface |^export interface |^type |^abstract class |^export class )" | head -20
+gh pr diff {number} | grep "^+" | sed 's/^+//' | grep -E "(^interface |^export interface |^type |^abstract class |^export class )" | head -20
 ```
 
 **PHASE_3_CHECKPOINT:**

@@ -34,10 +34,6 @@ idea-to-pr/
 ├── SKILL.md              # Skill entry point with phase-by-phase instructions
 ├── workflow.yaml         # Workflow orchestration definition
 ├── README.md             # This file
-├── git-platform/         # Platform abstraction layer (GitHub/GitLab/Bitbucket/local)
-│   ├── api.sh           # Unified API entry point
-│   ├── config           # Platform selection (github|gitlab|bitbucket|local)
-│   └── adapters/        # Platform-specific adapters
 ├── commands/             # 16 command files, one per workflow step
 │   ├── archon-create-plan.md
 │   ├── archon-plan-setup.md
@@ -76,28 +72,11 @@ idea-to-pr/
 
 - [Claude Code](https://claude.ai/code) with skill/agent support
 - Git (for branch/PR operations)
-- **For GitHub**: GitHub CLI (`gh`) — authenticated
-- **For GitLab**: GitLab CLI (`glab`) — authenticated (adapter placeholder)
-- **For Bitbucket**: Bitbucket CLI (`bb`) — authenticated (adapter placeholder)
-- **Local only**: No additional CLI needed (PR operations skipped)
+- GitHub CLI (`gh`) — for PR creation and review
 
 ## Setup
 
 The skill is auto-discovered when placed in `.claude/skills/idea-to-pr/`. No additional configuration is needed.
-
-### Platform Configuration
-
-By default, the skill uses GitHub. To switch platforms, edit `git-platform/config`:
-
-```
-# github (default), gitlab, bitbucket, or local
-github
-```
-
-For **local mode** (git-only, no PR platform):
-- PR creation is skipped (branch created but no PR)
-- Review operates on unstaged/local changes
-- Comments are printed to stdout instead of posted
 
 For workflow artifacts:
 ```bash
@@ -129,19 +108,6 @@ Launches 5 specialized agents in parallel:
 
 ### Fix & Summary
 Synthesizes all review findings into a prioritized list, auto-fixes critical and high issues, then produces a final decision matrix with ship recommendations.
-
-## Platform Abstraction
-
-All git-platform-specific operations (PR creation, review, commenting, CI checks) go through `git-platform/api.sh`, not through CLI tools directly. This decouples the skill from any specific hosting provider.
-
-```
-Commands → git-platform/api.sh → adapter (github/gitlab/bitbucket/local) → CLI/API
-```
-
-To add a new platform:
-1. Create `git-platform/adapters/{name}.sh` implementing all `platform_*` functions
-2. Set `{name}` in `git-platform/config`
-3. No changes needed to any command files
 
 ## Design Principles
 

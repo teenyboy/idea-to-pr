@@ -1,5 +1,5 @@
 ---
-description: Synthesize all review agent findings into consolidated report and post to PR platform
+description: Synthesize all review agent findings into consolidated report and post to GitHub
 argument-hint: (none - reads from review artifacts)
 ---
 
@@ -9,10 +9,10 @@ argument-hint: (none - reads from review artifacts)
 
 ## Your Mission
 
-Read all parallel review agent artifacts, synthesize findings into a consolidated report, create a master artifact, and post a comprehensive review comment to the PR.
+Read all parallel review agent artifacts, synthesize findings into a consolidated report, create a master artifact, and post a comprehensive review comment to the GitHub PR.
 
 **Output artifact**: `.claude/skills/idea-to-pr/artifacts/review/consolidated-review.md`
-**Platform action**: Post PR comment with full review
+**GitHub action**: Post PR comment with full review
 
 ---
 
@@ -256,14 +256,14 @@ If not addressing in this PR, create issues for:
 
 ---
 
-## Phase 4: POST - PR Comment
+## Phase 4: POST - GitHub PR Comment
 
-### 4.1 Format for PR Comment
+### 4.1 Format for GitHub
 
-Create a PR-friendly version of the review:
+Create a GitHub-friendly version of the review:
 
 ```bash
-.claude/skills/idea-to-pr/git-platform/api.sh pr comment {number} --body "$(cat <<'EOF'
+gh pr comment {number} --body "$(cat <<'EOF'
 # 🔍 Comprehensive PR Review
 
 **PR**: #{number}
@@ -373,7 +373,7 @@ EOF
 ```
 
 **PHASE_4_CHECKPOINT:**
-- [ ] PR comment posted
+- [ ] GitHub comment posted
 - [ ] Formatting renders correctly
 - [ ] All severity levels included
 

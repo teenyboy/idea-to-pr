@@ -39,7 +39,7 @@ Extract:
 
 ### 1.2 Check for PR Template
 
-**IMPORTANT**: Always check for the project's PR/MR template first. Look for it at `.github/pull_request_template.md` (GitHub), `.gitlab/merge_request_templates/` (GitLab), or `docs/PULL_REQUEST_TEMPLATE.md`. Read whichever one exists.
+**IMPORTANT**: Always check for the project's PR template first. Look for it at `.github/pull_request_template.md`, `.github/PULL_REQUEST_TEMPLATE.md`, or `docs/PULL_REQUEST_TEMPLATE.md`. Read whichever one exists.
 
 **If template found**: Use it as the structure, fill in **every section** with implementation details.
 **If no template**: Use the default format defined in Phase 3.
@@ -47,7 +47,7 @@ Extract:
 ### 1.3 Check for Existing PR
 
 ```bash
-.claude/skills/idea-to-pr/git-platform/api.sh pr list --head $(git branch --show-current) --json number,url,state
+gh pr list --head $(git branch --show-current) --json number,url,state
 ```
 
 **If PR already exists**: Will update it instead of creating new one.
@@ -183,7 +183,7 @@ cat > .claude/skills/idea-to-pr/artifacts/pr-body.md <<'EOF'
 {prepared-body}
 EOF
 
-.claude/skills/idea-to-pr/git-platform/api.sh pr create \
+gh pr create \
   --title "{plan-title}" \
   --body-file .claude/skills/idea-to-pr/artifacts/pr-body.md \
   --base $BASE_BRANCH
@@ -192,7 +192,7 @@ EOF
 **If PR already exists**, update it:
 
 ```bash
-.claude/skills/idea-to-pr/git-platform/api.sh pr edit {pr-number} --body-file .claude/skills/idea-to-pr/artifacts/pr-body.md
+gh pr edit {pr-number} --body-file .claude/skills/idea-to-pr/artifacts/pr-body.md
 ```
 
 ### 3.3 Ensure Ready for Review
@@ -200,13 +200,13 @@ EOF
 If PR was created as draft, mark ready:
 
 ```bash
-.claude/skills/idea-to-pr/git-platform/api.sh pr ready {pr-number}
+gh pr ready {pr-number} 2>/dev/null || true
 ```
 
 ### 3.4 Capture PR Info
 
 ```bash
-.claude/skills/idea-to-pr/git-platform/api.sh pr view --json number,url,headRefName,baseRefName
+gh pr view --json number,url,headRefName,baseRefName
 ```
 
 ### 3.5 Write PR Number Registry
@@ -214,8 +214,8 @@ If PR was created as draft, mark ready:
 Write PR number for downstream review steps:
 
 ```bash
-PR_NUMBER=$(.claude/skills/idea-to-pr/git-platform/api.sh pr view --json number -q '.number')
-PR_URL=$(.claude/skills/idea-to-pr/git-platform/api.sh pr view --json url -q '.url')
+PR_NUMBER=$(gh pr view --json number -q '.number')
+PR_URL=$(gh pr view --json url -q '.url')
 echo "$PR_NUMBER" > .claude/skills/idea-to-pr/artifacts/.pr-number
 echo "$PR_URL" > .claude/skills/idea-to-pr/artifacts/.pr-url
 ```
@@ -381,7 +381,7 @@ Check:
 ❌ PR not found: #{number}
 
 The draft PR may have been closed or deleted. Create a new one:
-`cli pr create --title "..." --body "..."` (or `git-platform/api.sh pr create ...`)
+`gh pr create --title "..." --body "..."`
 ```
 
 ### Template Parsing
